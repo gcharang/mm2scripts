@@ -1,5 +1,5 @@
 {
-    "gui": "MM2GUI",
+    "gui": "MM2CLI",
     "netid": 7777,
     "rpc_password": "RPC_CONTROL_USERPASSWORD",
     "passphrase": "REPLACE_TRADING_WALLET_PASSPHRASE",
