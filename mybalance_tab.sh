@@ -10,15 +10,21 @@ for k in $(jq '.result | keys | .[]' <<< "$ENABLED_COINS"); do
   
   ticker=$(jq -r ".result[$k] | .ticker" <<< "$ENABLED_COINS");
   mybalance=$(curl -Ss --url "http://127.0.0.1:7783" --data "{\"userpass\":\"$userpass\",\"method\":\"my_balance\",\"coin\":\"$ticker\"}");
-  ENABLED_COINS=$(jq -r ".result[$k].mybalance |= . + [$mybalance]" <<< "$ENABLED_COINS");  
-
+  ENABLED_COINS=$(jq -r ".result[$k].mybalance |= . + $mybalance" <<< "$ENABLED_COINS");  
 done
 
-# printf "$ENABLED_COINS";
+ENABLED_COINS=$(jq -r '
+
+  [.result | .[] | .mybalance] 
+  | map({address: .address,coin: .coin|tostring, balance: .balance|tonumber})
+  | sort_by(.coin) | .[] | flatten | @tsv 
+
+' <<< "$ENABLED_COINS");
 
 printf "\n";
-printf "Coin    Balance     Unspendable Address\n";
+printf "Address                                 Coin    Balance\n";
 printf "%s----------------------------------------------------------------------\n";
-printf "$ENABLED_COINS" | jq -r '.result | sort_by(.ticker) | .[] | .mybalance | .[] | flatten|@tsv';
+printf "$ENABLED_COINS";
+printf "\n";
 printf "\n";
  
